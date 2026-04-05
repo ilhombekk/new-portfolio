@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ilhom Saidov — Developer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080808;
+            --surface: #111111;
+            --border: rgba(255,255,255,0.07);
+            --accent: #c8f73a;
+            --text: #f0f0f0;
+            --muted: #666;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            cursor: none;
+            overflow-x: hidden;
+        }
+        .cursor {
+            position: fixed; width: 10px; height: 10px;
+            background: var(--accent); border-radius: 50%;
+            pointer-events: none; z-index: 9999;
+            mix-blend-mode: difference; transition: transform 0.1s;
+        }
+        .cursor-follower {
+            position: fixed; width: 34px; height: 34px;
+            border: 1px solid var(--accent); border-radius: 50%;
+            pointer-events: none; z-index: 9998;
+            mix-blend-mode: difference; transition: all 0.14s ease;
+        }
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.4rem 3rem;
+            backdrop-filter: blur(20px);
+            background: rgba(8,8,8,0.85);
+            border-bottom: 1px solid var(--border);
+        }
+        .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; }
+        .logo span { color: var(--accent); }
+        .nav-links { display: flex; gap: 2.5rem; align-items: center; }
+        .nav-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.3s; cursor: none; }
+        .nav-links a:hover { color: var(--text); }
+        .nav-cta { background: var(--accent) !important; color: #000 !important; padding: 8px 20px; border-radius: 100px; font-weight: 500; }
+        .hero {
+            min-height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; padding: 8rem 3rem 4rem; position: relative; overflow: hidden;
+        }
+        .hero-glow {
+            position: absolute; width: 700px; height: 700px;
+            background: radial-gradient(circle, rgba(200,247,58,0.055) 0%, transparent 65%);
+            top: 50%; right: -100px; transform: translateY(-50%); pointer-events: none;
+        }
+        .hero-tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--accent); margin-bottom: 2rem;
+        }
+        .hero-tag::before {
+            content: ''; display: block; width: 6px; height: 6px;
+            background: var(--accent); border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.7)} }
+        .hero h1 {
+            font-family: 'Syne', sans-serif; font-weight: 800;
+            font-size: clamp(56px, 10vw, 120px);
+            line-height: 0.93; letter-spacing: -3px; margin-bottom: 2.5rem;
+        }
+        .outline { -webkit-text-stroke: 1.5px rgba(255,255,255,0.2); color: transparent; }
+        .accent-text { color: var(--accent); }
+        .hero-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; flex-wrap: wrap; }
+        .hero-desc { font-size: 16px; color: var(--muted); max-width: 400px; line-height: 1.85; }
+        .hero-desc strong { color: var(--text); font-weight: 400; }
+        .hero-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 1.5rem; }
+        .hero-btns { display: flex; gap: 10px; }
+        .btn-primary {
+            background: var(--accent); color: #000; padding: 13px 26px;
+            border-radius: 100px; font-size: 14px; font-weight: 500;
+            border: none; cursor: none; transition: all 0.3s;
+            text-decoration: none; display: inline-block;
+        }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(200,247,58,0.25); }
+        .btn-outline {
+            background: transparent; color: var(--text); padding: 12px 26px;
+            border-radius: 100px; font-size: 14px; border: 1px solid var(--border);
+            cursor: none; transition: all 0.3s; text-decoration: none; display: inline-block;
+        }
+        .btn-outline:hover { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.03); }
+        .scroll-indicator { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+        .scroll-line { width: 48px; height: 1px; background: var(--border); position: relative; overflow: hidden; }
+        .scroll-line::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: var(--accent); animation: slide 2s infinite;
+        }
+        @keyframes slide { 0%{left:-100%} 100%{left:100%} }
+        .marquee-bar {
+            overflow: hidden; border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border); padding: 1rem 0;
+            background: var(--surface);
+        }
+        .marquee-track { display: flex; animation: marquee 20s linear infinite; white-space: nowrap; }
+        .m-item {
+            display: inline-flex; align-items: center; gap: 1.5rem;
+            padding: 0 2rem; font-family: 'Syne', sans-serif;
+            font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+        }
+        .m-dot { color: var(--accent); font-size: 16px; }
+        @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+        .stats-row {
+            display: flex; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+        }
+        .stat { flex: 1; padding: 2.5rem 3rem; border-right: 1px solid var(--border); transition: background 0.3s; }
+        .stat:last-child { border-right: none; }
+        .stat:hover { background: rgba(255,255,255,0.015); }
+        .stat-num { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 6px; }
+        .stat-label { font-size: 13px; color: var(--muted); }
+        .sec { padding: 6rem 3rem; max-width: 1100px; margin: 0 auto; }
+        .sec-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 3rem; }
+        .sec-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+        .sec-title { font-family: 'Syne', sans-serif; font-size: clamp(28px,4vw,44px); font-weight: 800; letter-spacing: -1px; }
+        .sec-count { font-size: 13px; color: var(--muted); }
+        .skills-wrap { display: flex; flex-wrap: wrap; gap: 10px; }
+        .skill {
+            padding: 10px 20px; border: 1px solid var(--border);
+            border-radius: 100px; font-size: 13px; color: var(--muted);
+            transition: all 0.3s; cursor: default;
+        }
+        .skill:hover { border-color: var(--accent); color: var(--accent); background: rgba(200,247,58,0.04); transform: translateY(-2px); }
+        .projects-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+        .proj {
+            background: var(--bg); padding: 2.5rem 3rem;
+            display: flex; justify-content: space-between; align-items: center;
+            gap: 2rem; transition: background 0.3s; cursor: none; position: relative; overflow: hidden;
+        }
+        .proj::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px; background: var(--accent); transform: scaleY(0); transition: transform 0.3s;
+        }
+        .proj:hover::before { transform: scaleY(1); }
+        .proj:hover { background: rgba(255,255,255,0.018); }
+        .proj-left { display: flex; align-items: center; gap: 2.5rem; }
+        .proj-num { font-family: 'Syne', sans-serif; font-size: 13px; color: var(--muted); min-width: 28px; }
+        .proj-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+        .proj-desc { font-size: 13px; color: var(--muted); max-width: 420px; line-height: 1.65; }
+        .proj-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+        .ptag { font-size: 11px; padding: 4px 12px; border: 1px solid var(--border); border-radius: 100px; color: var(--muted); }
+        .proj-arrow { font-size: 26px; color: var(--muted); transition: all 0.3s; min-width: 40px; text-align: right; }
+        .proj:hover .proj-arrow { color: var(--accent); transform: translate(4px,-4px); }
+        .services-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+        .srv-card { background: var(--bg); padding: 2.5rem; transition: background 0.3s; }
+        .srv-card:hover { background: rgba(255,255,255,0.018); }
+        .srv-icon {
+            width: 48px; height: 48px; border: 1px solid var(--border); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; margin-bottom: 1.5rem; transition: all 0.3s;
+        }
+        .srv-card:hover .srv-icon { border-color: var(--accent); background: rgba(200,247,58,0.05); }
+        .srv-num { font-size: 11px; color: var(--muted); letter-spacing: 1px; margin-bottom: 6px; }
+        .srv-name { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 1rem; }
+        .srv-desc { font-size: 13px; color: var(--muted); line-height: 1.75; }
+        .contact-box { border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+        .contact-top {
+            padding: 4rem 3rem; background: var(--surface);
+            display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap;
+        }
+        .contact-top h2 { font-family: 'Syne', sans-serif; font-size: clamp(28px,4vw,50px); font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; }
+        .contact-top h2 span { color: var(--accent); }
+        .contact-links { display: flex; flex-direction: column; gap: 10px; }
+        .clink {
+            display: flex; align-items: center; gap: 14px; text-decoration: none;
+            color: var(--text); font-size: 14px; transition: all 0.3s;
+            padding: 12px 16px; border-radius: 10px; border: 1px solid transparent;
+        }
+        .clink:hover { border-color: var(--border); background: rgba(255,255,255,0.03); transform: translateX(6px); }
+        .ci {
+            width: 36px; height: 36px; background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;
+        }
+        .contact-foot {
+            padding: 1.25rem 3rem; border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; font-size: 12px; color: var(--muted);
+        }
+        .fade-up { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        .fade-up.vis { opacity: 1; transform: translateY(0); }
+        footer { padding: 1.8rem 3rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); flex-wrap: wrap; gap: 1rem; }
+        @media(max-width:768px){
+            nav { padding: 1rem 1.5rem; }
+            .nav-links a:not(.nav-cta) { display: none; }
+            .hero { padding: 6.5rem 1.5rem 3rem; }
+            .hero h1 { letter-spacing: -2px; }
+            .hero-bottom { flex-direction: column; align-items: flex-start; }
+            .hero-actions { align-items: flex-start; }
+            .stats-row { flex-wrap: wrap; }
+            .stat { flex: 1 1 50%; border-bottom: 1px solid var(--border); }
+            .sec { padding: 3.5rem 1.5rem; }
+            .proj { flex-direction: column; align-items: flex-start; padding: 2rem 1.5rem; }
+            .proj-left { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .services-grid { grid-template-columns: 1fr; }
+            .contact-top { flex-direction: column; padding: 2rem 1.5rem; }
+            .contact-foot { flex-direction: column; gap: 6px; padding: 1rem 1.5rem; }
+            footer { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="cursor" id="cur"></div>
+    <div class="cursor-follower" id="fol"></div>
+    
+    <nav>
+        <div class="logo">Ilhom<span>.</span>dev</div>
+        <div class="nav-links">
+            <a href="#about">Haqimda</a>
+            <a href="#projects">Loyihalar</a>
+            <a href="#services">Xizmatlar</a>
+            <a href="#contact" class="nav-cta">Bog'lanish →</a>
+        </div>
+    </nav>
+    
+    <section class="hero" id="about">
+        <div class="hero-glow"></div>
+        <div class="hero-tag">Mavjud · Toshkent, O'zbekiston</div>
+        <h1>
+            <span class="outline">ILHOM</span><br>
+            <span>SAIDOV</span><br>
+            <span class="accent-text">DEV.</span>
+        </h1>
+        <div class="hero-bottom">
+            <p class="hero-desc">
+                <strong>Web saytlar</strong> va <strong>Telegram botlar</strong> yaratuvchi dasturchi. G'oyangizni zamonaviy, tez va chiroyli raqamli mahsulotga aylantiraman.
+            </p>
+            <div class="hero-actions">
+                <div class="hero-btns">
+                    <a href="#contact" class="btn-primary">Loyiha boshlash →</a>
+                    <a href="#projects" class="btn-outline">Ishlarni ko'rish</a>
+                </div>
+                <div class="scroll-indicator">
+                    <div class="scroll-line"></div>
+                    scroll
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <div class="marquee-bar">
+        <div class="marquee-track">
+            <span class="m-item">Web Development <span class="m-dot">✦</span></span>
+            <span class="m-item">Telegram Bot <span class="m-dot">✦</span></span>
+            <span class="m-item">React <span class="m-dot">✦</span></span>
+            <span class="m-item">JavaScript <span class="m-dot">✦</span></span>
+            <span class="m-item">HTML & CSS <span class="m-dot">✦</span></span>
+            <span class="m-item">SASS <span class="m-dot">✦</span></span>
+            <span class="m-item">Toshkent 🇺🇿 <span class="m-dot">✦</span></span>
+            <span class="m-item">Web Development <span class="m-dot">✦</span></span>
+            <span class="m-item">Telegram Bot <span class="m-dot">✦</span></span>
+            <span class="m-item">React <span class="m-dot">✦</span></span>
+            <span class="m-item">JavaScript <span class="m-dot">✦</span></span>
+            <span class="m-item">HTML & CSS <span class="m-dot">✦</span></span>
+            <span class="m-item">SASS <span class="m-dot">✦</span></span>
+            <span class="m-item">Toshkent 🇺🇿 <span class="m-dot">✦</span></span>
+        </div>
+    </div>
+    
+    <div class="stats-row fade-up">
+        <div class="stat"><div class="stat-num" id="s1">2+</div><div class="stat-label">Yil tajriba</div></div>
+        <div class="stat"><div class="stat-num" id="s2">10+</div><div class="stat-label">Bajarilgan loyiha</div></div>
+        <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Mijoz mamnuniyati</div></div>
+        <div class="stat"><div class="stat-num">24/7</div><div class="stat-label">Qo'llab-quvvatlash</div></div>
+    </div>
+    
+    <div class="sec fade-up">
+        <div class="sec-head">
+            <div><div class="sec-label">Stack</div><div class="sec-title">Texnologiyalar</div></div>
+        </div>
+        <div class="skills-wrap">
+            <span class="skill">HTML5</span>
+            <span class="skill">CSS3</span>
+            <span class="skill">SASS / SCSS</span>
+            <span class="skill">JavaScript</span>
+            <span class="skill">React</span>
+            <span class="skill">Telegram Bot API</span>
+            <span class="skill">Git & GitHub</span>
+            <span class="skill">Responsive Design</span>
+            <span class="skill">REST API</span>
+            <span class="skill">Figma</span>
+        </div>
+    </div>
+    
+    <div class="sec fade-up" id="projects">
+        <div class="sec-head">
+            <div><div class="sec-label">Ishlar</div><div class="sec-title">Loyihalar</div></div>
+            <div class="sec-count">02 loyiha</div>
+        </div>
+        <div class="projects-list">
+            <div class="proj">
+                <div class="proj-left">
+                    <div class="proj-num">01</div>
+                    <div>
+                        <div class="proj-title">Shovot Lavka</div>
+                        <div class="proj-desc">Mahalliy do'kon uchun yaratilgan to'liq veb sayt. Mahsulotlar katalogi, narxlar va buyurtma berish.</div>
+                        <div class="proj-tags">
+                            <span class="ptag">HTML</span><span class="ptag">CSS</span><span class="ptag">JavaScript</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="proj-arrow">↗</div>
+            </div>
+            <div class="proj">
+                <div class="proj-left">
+                    <div class="proj-num">02</div>
+                    <div>
+                        <div class="proj-title">Telegram Bot</div>
+                        <div class="proj-desc">Biznes uchun avtomatik bot — buyurtmalar, xabarlar va foydalanuvchi boshqaruvi.</div>
+                        <div class="proj-tags">
+                            <span class="ptag">Telegram API</span><span class="ptag">JavaScript</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="proj-arrow">↗</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="sec fade-up" id="services">
+        <div class="sec-head">
+            <div><div class="sec-label">Nima qilaman</div><div class="sec-title">Xizmatlar</div></div>
+            <div class="sec-count">03 xizmat</div>
+        </div>
+        <div class="services-grid">
+            <div class="srv-card">
+                <div class="srv-icon">🌐</div>
+                <div class="srv-num">01</div>
+                <div class="srv-name">Veb sayt yaratish</div>
+                <div class="srv-desc">Landing page, korporativ sayt yoki onlayn do'kon. Zamonaviy dizayn, tez yuklash, mobil uchun moslashtirilgan.</div>
+            </div>
+            <div class="srv-card">
+                <div class="srv-icon">✈️</div>
+                <div class="srv-num">02</div>
+                <div class="srv-name">Telegram bot</div>
+                <div class="srv-desc">Biznesingiz uchun aqlli bot — buyurtmalar, to'lovlar, xabar yuborish va boshqaruv paneli.</div>
+            </div>
+            <div class="srv-card">
+                <div class="srv-icon">⚛️</div>
+                <div class="srv-num">03</div>
+                <div class="srv-name">UI / Front-end</div>
+                <div class="srv-desc">React asosida interaktiv va animatsiyali interfeys. Har qanday qurilmada mukammal ko'rinish.</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="sec fade-up" id="contact">
+        <div class="contact-box">
+            <div class="contact-top">
+                <h2>Loyihangizni<br>birga <span>quramizmi?</span></h2>
+                <div class="contact-links">
+                    <a href="mailto:ilhomsaidov828@gmail.com" class="clink">
+                        <div class="ci">✉</div> ilhomsaidov828@gmail.com
+                    </a>
+                    <a href="https://t.me/learnncode" target="_blank" class="clink">
+                        <div class="ci">✈</div> @learnncode
+                    </a>
+                    <a href="https://github.com/ilhombekk" target="_blank" class="clink">
+                        <div class="ci">&lt;/&gt;</div> github.com/ilhombekk
+                    </a>
+                </div>
+            </div>
+            <div class="contact-foot">
+                <span>© 2026 Ilhom Saidov</span>
+                <span>Toshkent, O'zbekiston 🇺🇿</span>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <span>Ilhom Saidov — Developer</span>
+        <span>Barcha huquqlar himoyalangan</span>
+    </footer>
+    
+    <script>
+        const cur = document.getElementById('cur');
+        const fol = document.getElementById('fol');
+        let fx=0,fy=0,cx=0,cy=0;
+        document.addEventListener('mousemove', e => {
+            cx=e.clientX; cy=e.clientY;
+            cur.style.left=(cx-5)+'px'; cur.style.top=(cy-5)+'px';
+        });
+        (function anim(){
+            fx+=(cx-fx)*0.13; fy+=(cy-fy)*0.13;
+            fol.style.left=(fx-17)+'px'; fol.style.top=(fy-17)+'px';
+            requestAnimationFrame(anim);
+        })();
+        document.querySelectorAll('a,button,.skill,.proj,.srv-card').forEach(el=>{
+            el.addEventListener('mouseenter',()=>{ cur.style.transform='scale(2.2)'; fol.style.transform='scale(1.4)'; });
+            el.addEventListener('mouseleave',()=>{ cur.style.transform='scale(1)'; fol.style.transform='scale(1)'; });
+        });
+        
+        const obs = new IntersectionObserver(entries=>{
+            entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('vis'); });
+        },{threshold:0.1});
+        document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+    </script>
+</body>
+</html>
